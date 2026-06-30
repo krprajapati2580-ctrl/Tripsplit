@@ -1,29 +1,45 @@
-name: Build TripSplit APK
+name: Deploy TripSplit Web App
 
 on:
-  workflow_dispatch: # Allows you to manually trigger the build with a button
+  push:
+    branches: ["main"] # Deploys automatically whenever you update your code
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
 
 jobs:
-  build:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps: deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
-      
-      - name: Setup Java Environment
-        uses: actions/setup-java@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
-          distribution: 'zulu'
-          java-version: '17'
-          
-      - name: Make Gradle Executable
-        run: chmod +x ./gradlew
-        
-      - name: Build the Android App
-        run: ./gradlew assembleDebug
-        
-      - name: Deliver the APK
-        uses: actions/upload-artifact@v4
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Build Web Application
+        run: npm run build
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload Production Files
+        uses: actions/upload-pages-artifact@v3
         with:
-          name: TripSplit-Install-File
-          path: app/build/outputs/apk/debug/app-debug.apk
+          path: './dist' # Vite outputs production files here
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
