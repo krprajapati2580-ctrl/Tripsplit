@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite'
-import react from '@vitejs/react-refresh' // or whatever your framework plugin is
+import react from '@vitejs/plugin-react'
 
 export default defineConfig({
-  base: '/Demo_CleanEmptyCompose/', // Add this exact line with your repo name!
+  base: '/Tripsplit/', 
   plugins: [react()],
 })
