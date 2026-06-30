@@ -2,7 +2,7 @@ name: Deploy TripSplit Web App
 
 on:
   push:
-    branches: ["main"] # Deploys automatically whenever you update your code
+    branches: ["main"]
   workflow_dispatch:
 
 permissions:
@@ -14,8 +14,11 @@ jobs:
   deploy:
     environment:
       name: github-pages
-      url: ${{ steps: deployment.outputs.page_url }}
+      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: . # If your package.json is in a subfolder like 'app', change this dot to './app'
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -25,6 +28,7 @@ jobs:
         with:
           node-version: 20
           cache: 'npm'
+          cache-dependency-path: './package.json' # If in a subfolder, change to './app/package.json'
 
       - name: Install Dependencies
         run: npm install
@@ -38,7 +42,7 @@ jobs:
       - name: Upload Production Files
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './dist' # Vite outputs production files here
+          path: './dist' # If in a subfolder, change to './app/dist'
 
       - name: Deploy to GitHub Pages
         id: deployment
