@@ -16,9 +16,6 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./app
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -40,7 +37,7 @@ jobs:
       - name: Upload Production Files
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './app/dist'
+          path: './dist'
 
       - name: Deploy to GitHub Pages
         id: deployment
