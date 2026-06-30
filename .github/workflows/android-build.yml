@@ -1,0 +1,29 @@
+name: Build TripSplit APK
+
+on:
+  workflow_dispatch: # Allows you to manually trigger the build with a button
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      
+      - name: Setup Java Environment
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+          
+      - name: Make Gradle Executable
+        run: chmod +x ./gradlew
+        
+      - name: Build the Android App
+        run: ./gradlew assembleDebug
+        
+      - name: Deliver the APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: TripSplit-Install-File
+          path: app/build/outputs/apk/debug/app-debug.apk
