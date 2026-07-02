@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { 
-  Database, Key, Send, MoreVertical, Check, Sun, Moon, 
-  HelpCircle, Sliders, Shield, RefreshCw, Download, Smartphone, ExternalLink
+  Key, MoreVertical, Sun, Moon, 
+  Sliders, Shield
 } from "lucide-react";
 import { motion } from "motion/react";
 
@@ -112,58 +112,6 @@ export function SettingsScreen({
 
       {/* Main Settings scrollable panel */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4 pb-24">
-        {/* Section: Google Sheets Developer Sync */}
-        <div className={`p-4 rounded-2xl border transition-colors ${
-          isDark ? "bg-slate-900/50 border-slate-800" : "bg-white border-slate-200 shadow-2xs"
-        }`}>
-          <div className="flex items-center gap-2 mb-2">
-            <div className="p-1.5 rounded-lg bg-blue-500/10 text-blue-500">
-              <Database size={16} />
-            </div>
-            <div>
-              <h3 className="text-xs font-black">Google Sheets Developer Sync</h3>
-              <p className="text-[9px] text-slate-400">Save user details automatically in your personal Google Sheet</p>
-            </div>
-          </div>
-
-          <div className="space-y-3 mt-3">
-            <div className={`p-2.5 rounded-xl border flex items-center gap-2 ${
-              isDark ? "bg-slate-950/40 border-slate-800" : "bg-slate-50/50 border-slate-250"
-            }`}>
-              <Database size={14} className="text-slate-400 shrink-0" />
-              <input
-                type="text"
-                value={googleSheetsWebhookUrl}
-                onChange={(e) => onGoogleSheetsWebhookUrlChange(e.target.value)}
-                placeholder="Apps Script Web App URL (https://script.google.com/...)"
-                className={`w-full text-xs bg-transparent outline-none border-none font-mono ${
-                  isDark ? "text-white placeholder-slate-600" : "text-slate-800 placeholder-slate-450"
-                }`}
-              />
-            </div>
-            
-            <p className="text-[10px] text-slate-400 leading-normal">
-              Store user registrations in your Google Sheet completely for free! Create a Google Sheet, add an Apps Script <code>doPost</code> function, deploy as a Web App (with Access: "Anyone"), and paste the URL here.
-            </p>
-
-            <div className={`p-2.5 rounded-xl border flex items-center justify-between gap-2 ${
-              googleSheetsWebhookUrl 
-                ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-500" 
-                : (isDark ? "bg-slate-950/40 border-slate-800 text-slate-500" : "bg-slate-50 text-slate-400 border-slate-200")
-            }`}>
-              <div className="flex items-center gap-1.5">
-                <span className={`w-2 h-2 rounded-full ${googleSheetsWebhookUrl ? "bg-emerald-500 animate-pulse" : "bg-slate-400"}`} />
-                <span className="text-[9px] font-bold uppercase tracking-wider">
-                  {googleSheetsWebhookUrl ? "Auto-Sync: Active" : "Local Sync Only"}
-                </span>
-              </div>
-              <span className="text-[8.5px] font-medium opacity-80 text-right">
-                {googleSheetsWebhookUrl ? "Syncs registrations to Google Sheet" : "Set Web App URL to enable"}
-              </span>
-            </div>
-          </div>
-        </div>
-
         {/* Section: Gemini API Configuration */}
         <div className={`p-4 rounded-2xl border transition-colors ${
           isDark ? "bg-slate-900/50 border-slate-800" : "bg-white border-slate-200 shadow-2xs"
@@ -207,97 +155,6 @@ export function SettingsScreen({
             <p className="text-[10px] text-slate-400 leading-normal">
               Providing your free key allows offline caching & direct-to-Gemini scanning when running as a standalone mobile app or on the free tier.
             </p>
-          </div>
-        </div>
-
-        {/* Section: Install Offline Mobile App & APK Guide */}
-        <div className={`p-4 rounded-2xl border transition-colors ${
-          isDark ? "bg-slate-900/50 border-slate-800" : "bg-white border-slate-200 shadow-2xs"
-        }`}>
-          <div className="flex items-center gap-2 mb-2">
-            <div className="p-1.5 rounded-lg bg-indigo-500/10 text-indigo-500">
-              <Smartphone size={16} />
-            </div>
-            <div>
-              <h3 className="text-xs font-black">Mobile App & Offline APK Center</h3>
-              <p className="text-[9px] text-slate-400">Run TripSplit natively on your mobile phone or download as APK</p>
-            </div>
-          </div>
-
-          <div className="space-y-3 mt-4">
-            {/* Guide Item 1: PWA Installation */}
-            <div className={`p-3 rounded-xl border ${
-              isDark ? "bg-slate-950/30 border-slate-850" : "bg-slate-50/40 border-slate-200/60"
-            }`}>
-              <div className="flex items-center justify-between mb-1">
-                <span className="text-[10px] font-black text-indigo-500 uppercase tracking-wider">Method 1: Native Mobile PWA</span>
-                <span className="px-1.5 py-0.5 bg-emerald-500/10 text-emerald-500 rounded text-[8px] font-bold">Recommended ⚡</span>
-              </div>
-              <p className="text-[10px] text-slate-400 leading-normal mb-2">
-                This app is fully optimized as a Progressive Web App (PWA). Open the deployed app URL (not the GitHub code repository) in Chrome on your mobile phone.
-              </p>
-              <div className={`p-2 rounded-lg text-[9px] font-medium leading-relaxed ${
-                isDark ? "bg-slate-950/60 text-slate-300" : "bg-slate-100/60 text-slate-600"
-              }`}>
-                👉 Tap the <strong className="font-extrabold text-blue-500">3 Dots (Menu)</strong> in Chrome and select <strong className="font-extrabold text-blue-500">"Install App"</strong> (or "Add to Home screen"). It will instantly add a native app icon to your launcher and run in fullscreen mode!
-              </div>
-            </div>
-
-            {/* Guide Item 2: APK Sideload Package */}
-            <div className={`p-3 rounded-xl border ${
-              isDark ? "bg-slate-950/30 border-slate-850" : "bg-slate-50/40 border-slate-200/60"
-            }`}>
-              <div className="flex items-center justify-between mb-1">
-                <span className="text-[10px] font-black text-blue-500 uppercase tracking-wider">Method 2: Standalone Android APK</span>
-                <span className="px-1.5 py-0.5 bg-blue-500/10 text-blue-500 rounded text-[8px] font-bold">Android Native 🤖</span>
-              </div>
-              <p className="text-[10px] text-slate-400 leading-normal mb-2">
-                You can easily compile this PWA into a standalone, lightweight Android `.apk` file that installs directly to your phone.
-              </p>
-              <a
-                href="https://www.pwabuilder.com/?site=https://krprajapati.github.io/tripsplit"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full py-1.5 px-3 rounded-lg text-[9px] font-bold bg-indigo-600 hover:bg-indigo-700 text-white flex items-center justify-center gap-1 cursor-pointer transition-all shadow-3xs"
-              >
-                <span>Generate Standalone APK on PWABuilder 🚀</span>
-                <ExternalLink size={10} />
-              </a>
-              <p className="text-[8px] text-slate-500 text-center mt-1">
-                PWABuilder is free, backed by Microsoft, and generates production-ready Android/iOS packages.
-              </p>
-            </div>
-
-            {/* Guide Item 3: Source Code ZIP */}
-            <div className={`p-3 rounded-xl border ${
-              isDark ? "bg-slate-950/30 border-slate-850" : "bg-slate-50/40 border-slate-200/60"
-            }`}>
-              <div className="flex items-center justify-between mb-1">
-                <span className="text-[10px] font-black text-amber-500 uppercase tracking-wider">Method 3: Download Complete Source Bundle</span>
-                <span className="px-1.5 py-0.5 bg-amber-500/10 text-amber-500 rounded text-[8px] font-bold">Offline Dev 💻</span>
-              </div>
-              <p className="text-[10px] text-slate-400 leading-normal mb-2.5">
-                Download the complete React/Vite/TypeScript source code to run it locally on your computer or mobile terminal app (like Termux).
-              </p>
-              
-              <div className="flex flex-col gap-1.5">
-                <a
-                  href="https://github.com/krprajapati/tripsplit/archive/refs/heads/main.zip"
-                  className="w-full py-1.5 px-3 rounded-lg text-[9px] font-bold border border-slate-300 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-900 flex items-center justify-center gap-1 cursor-pointer transition-all"
-                >
-                  <Download size={10} />
-                  <span>Download Source ZIP Archive (.zip)</span>
-                </a>
-                
-                <div className={`p-2 rounded-lg font-mono text-[8px] leading-normal ${
-                  isDark ? "bg-slate-950/60 text-emerald-400 border border-slate-850" : "bg-slate-100 text-emerald-700 border border-slate-200"
-                }`}>
-                  <span className="text-slate-500"># Or clone & run offline:</span><br/>
-                  git clone https://github.com/krprajapati/tripsplit.git<br/>
-                  cd tripsplit && npm install && npm run dev
-                </div>
-              </div>
-            </div>
           </div>
         </div>
 

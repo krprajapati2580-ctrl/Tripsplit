@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { User, Expense, PastTrip } from "./types";
 import { calculateBalances } from "./utils";
+import { downloadPdfReport } from "./utils/pdfGenerator";
 import { KOTLIN_CODE_BLOCKS } from "./kotlinCode";
 import { DashboardScreen, BalancesScreen, AddExpenseScreen } from "./components/Screens";
 import { SidebarDrawer } from "./components/SidebarDrawer";
 import { SetupWizardScreen } from "./components/SetupWizardScreen";
 import { AuthScreen } from "./components/AuthScreen";
-import { ContactPickerModal } from "./components/ContactPickerModal";
 import { SettingsScreen } from "./components/SettingsScreen";
 import {
   Smartphone,
@@ -145,7 +145,7 @@ export default function App() {
     const saved = localStorage.getItem("tripsplit_tripBudget");
     return saved || "35000";
   });
-  const [reportCopied, setReportCopied] = useState(false);
+  const [reportDownloaded, setReportDownloaded] = useState(false);
 
   // Past History States
   const [pastTrips, setPastTrips] = useState<PastTrip[]>(() => {
@@ -558,34 +558,20 @@ export default function App() {
   const totalTripExpenses = expenses.reduce((sum, exp) => sum + exp.totalAmount, 0);
   const spentPercentage = Math.min(100, Math.round((totalTripExpenses / tripBudget) * 100));
 
-  const generateTripReport = () => {
-    let report = `=== TRIPSPLIT TRAVEL EXPENSE REPORT ===\n`;
-    report += `Generated: ${new Date().toLocaleDateString()}\n`;
-    report += `Total Trip Budget: ${currencySymbol}${tripBudget.toLocaleString()}\n`;
-    report += `Total Expenses Logged: ${currencySymbol}${totalTripExpenses.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}\n`;
-    report += `Number of Friends: ${users.length}\n\n`;
-    report += `--- INDIVIDUAL STANDINGS ---\n`;
-    const balances = calculateBalances(users, expenses);
-    users.forEach(u => {
-      const b = balances[u.id] || 0;
-      if (b > 0.01) {
-        report += `- ${u.name}: Owed ${currencySymbol}${b.toFixed(2)}\n`;
-      } else if (b < -0.01) {
-        report += `- ${u.name}: Owes ${currencySymbol}${Math.abs(b).toFixed(2)}\n`;
-      } else {
-        report += `- ${u.name}: Settled up\n`;
-      }
-    });
-    report += `\nThank you for using TripSplit!`;
-    return report;
-  };
-
-  const handleCopyReport = () => {
-    const reportText = generateTripReport();
-    copyToClipboard(reportText).then(() => {
-      setReportCopied(true);
-      setTimeout(() => setReportCopied(false), 2000);
-    });
+  const handleDownloadReport = () => {
+    try {
+      downloadPdfReport({
+        tripName,
+        users,
+        expenses,
+        currencySymbol,
+        tripBudget
+      });
+      setReportDownloaded(true);
+      setTimeout(() => setReportDownloaded(false), 2000);
+    } catch (err) {
+      console.error("Failed to download PDF report:", err);
+    }
   };
 
   return (
@@ -1177,8 +1163,8 @@ export default function App() {
                 users={users}
                 expenses={expenses}
                 currencySymbol={currencySymbol}
-                reportCopied={reportCopied}
-                onCopyReport={handleCopyReport}
+                reportDownloaded={reportDownloaded}
+                onDownloadReport={handleDownloadReport}
                 onStartNewTrip={() => setSimScreen("setupWizard")}
                 pastTrips={pastTrips}
                 onReviewPastTrip={setReviewedPastTrip}
@@ -1282,16 +1268,6 @@ export default function App() {
                     Add
                   </button>
                 </div>
-
-                {users.length < MAX_PARTICIPANTS && (
-                  <button
-                    type="button"
-                    onClick={() => setIsMainContactPickerOpen(true)}
-                    className="w-full py-1.5 border border-dashed rounded-lg text-xs font-bold transition-colors flex items-center justify-center gap-1.5 cursor-pointer border-blue-500/30 text-blue-500 hover:bg-blue-500/5 select-none"
-                  >
-                    <span>Import from contacts 📱</span>
-                  </button>
-                )}
               </motion.form>
             )}
 
@@ -1477,17 +1453,6 @@ export default function App() {
           </div>
         )}
       </AnimatePresence>
-
-      {/* Contact Picker Modal */}
-      <ContactPickerModal
-        isOpen={isMainContactPickerOpen}
-        onClose={() => setIsMainContactPickerOpen(false)}
-        onSelect={(contact) => {
-          handleImportContact(contact.name);
-          setIsMainContactPickerOpen(false);
-        }}
-        theme={theme}
-      />
     </div>
   );
 }

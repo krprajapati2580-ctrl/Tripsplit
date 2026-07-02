@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { User, Expense, Debt } from "../types";
 import { calculateBalances, calculateSimplifiedDebts, formatCurrency } from "../utils";
-import { Plus, List, ArrowLeft, Users, DollarSign, Check, Trash2, CheckCircle, HelpCircle, Camera, Lock, Pencil, MoreVertical } from "lucide-react";
+import { Plus, List, ArrowLeft, Users, DollarSign, Check, Trash2, CheckCircle, HelpCircle, Camera, Lock, Pencil, MoreVertical, Upload } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { TripSplitLogo } from "./TripSplitLogo";
 
@@ -518,6 +518,7 @@ export function AddExpenseScreen({
   const [error, setError] = useState<string | null>(null);
   const [isScanning, setIsScanning] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const galleryInputRef = useRef<HTMLInputElement>(null);
 
   // Calculations for live item splits supporting proportional TAX distribution
   const activeFoodItems = receiptItems.filter((item, idx) => item.type === "FOOD" && checkedItems[idx] !== false);
@@ -975,31 +976,61 @@ export function AddExpenseScreen({
                 }`}
               />
             </div>
-            <button
-              type="button"
-              id="scan-receipt-btn"
-              onClick={handleScanReceiptClick}
-              disabled={isScanning}
-              className={`flex items-center justify-center p-3 rounded-xl transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed min-w-[48px] ${
-                isDark 
-                  ? "bg-blue-950/40 text-blue-400 border border-blue-900/40 hover:bg-blue-900/40 active:bg-blue-900/50" 
-                  : "bg-blue-50 text-blue-600 border border-blue-100 hover:bg-blue-100 active:bg-blue-200"
-              }`}
-              title="Scan Receipt"
-            >
-              {isScanning ? (
-                <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
-              ) : (
-                <Camera size={20} />
-              )}
-            </button>
+            {/* Action buttons: Camera capture vs Gallery upload */}
+            <div className="flex gap-1.5 shrink-0">
+              <button
+                type="button"
+                id="scan-receipt-btn"
+                onClick={handleScanReceiptClick}
+                disabled={isScanning}
+                className={`flex items-center justify-center p-3 rounded-xl transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed min-w-[44px] ${
+                  isDark 
+                    ? "bg-blue-950/40 text-blue-400 border border-blue-900/40 hover:bg-blue-900/40 active:bg-blue-900/50" 
+                    : "bg-blue-50 text-blue-600 border border-blue-100 hover:bg-blue-100 active:bg-blue-200"
+                }`}
+                title="Capture receipt photo using camera"
+              >
+                {isScanning ? (
+                  <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <Camera size={18} />
+                )}
+              </button>
+
+              <button
+                type="button"
+                id="upload-receipt-btn"
+                onClick={() => galleryInputRef.current?.click()}
+                disabled={isScanning}
+                className={`flex items-center justify-center p-3 rounded-xl transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed min-w-[44px] ${
+                  isDark 
+                    ? "bg-indigo-950/40 text-indigo-400 border border-indigo-900/40 hover:bg-indigo-900/40 active:bg-indigo-900/50" 
+                    : "bg-indigo-50 text-indigo-600 border border-indigo-100 hover:bg-indigo-100 active:bg-indigo-200"
+                }`}
+                title="Upload receipt image from gallery"
+              >
+                {isScanning ? (
+                  <div className="w-5 h-5 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <Upload size={18} />
+                )}
+              </button>
+            </div>
           </div>
+          {/* File Inputs (Camera capture vs Gallery upload) */}
           <input
             type="file"
             ref={fileInputRef}
             onChange={handleFileChange}
             accept="image/*"
             capture="environment"
+            className="hidden"
+          />
+          <input
+            type="file"
+            ref={galleryInputRef}
+            onChange={handleFileChange}
+            accept="image/*"
             className="hidden"
           />
         </div>

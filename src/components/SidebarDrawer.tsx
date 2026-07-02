@@ -29,8 +29,8 @@ interface SidebarDrawerProps {
   users: User[];
   expenses: Expense[];
   currencySymbol: string;
-  reportCopied: boolean;
-  onCopyReport: () => void;
+  reportDownloaded: boolean;
+  onDownloadReport: () => void;
   onStartNewTrip?: () => void;
   pastTrips: PastTrip[];
   onReviewPastTrip: (trip: PastTrip) => void;
@@ -63,8 +63,8 @@ export function SidebarDrawer({
   users,
   expenses,
   currencySymbol,
-  reportCopied,
-  onCopyReport,
+  reportDownloaded,
+  onDownloadReport,
   onStartNewTrip,
   pastTrips,
   onReviewPastTrip,
@@ -535,22 +535,22 @@ export function SidebarDrawer({
                 </h5>
                 <button
                   type="button"
-                  onClick={onCopyReport}
+                  onClick={onDownloadReport}
                   className={`w-full py-2 px-3 text-[10px] font-bold rounded-xl border flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                     theme === "dark"
                       ? "bg-slate-950 border-slate-800 text-slate-200 hover:bg-slate-900 hover:text-white"
                       : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-slate-900 shadow-3xs"
                   }`}
                 >
-                  {reportCopied ? (
+                  {reportDownloaded ? (
                     <>
                       <Check size={12} className="text-emerald-500" />
-                      <span className="text-emerald-500 font-extrabold">Report Copied!</span>
+                      <span className="text-emerald-500 font-extrabold">PDF Report Downloaded!</span>
                     </>
                   ) : (
                     <>
                       <Download size={12} className="text-blue-500" />
-                      <span>Copy ASCII-Split Report</span>
+                      <span>Download Trip Report</span>
                     </>
                   )}
                 </button>

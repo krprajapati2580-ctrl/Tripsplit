@@ -13,7 +13,6 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { User } from "../types";
-import { ContactPickerModal, Contact } from "./ContactPickerModal";
 import { TripSplitLogo } from "./TripSplitLogo";
 
 interface SetupWizardScreenProps {
@@ -44,7 +43,6 @@ export function SetupWizardScreen({
   const [friendInput, setFriendInput] = useState("");
   const [friends, setFriends] = useState<string[]>([]);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [isContactPickerOpen, setIsContactPickerOpen] = useState(false);
 
   // Add friend to the wizard list
   const handleAddFriend = (e?: React.FormEvent) => {
@@ -327,19 +325,6 @@ export function SetupWizardScreen({
                     <span className="ml-0.5">Add</span>
                   </button>
                 </form>
-
-                <button
-                  type="button"
-                  onClick={() => setIsContactPickerOpen(true)}
-                  className={`w-full py-1.5 px-3 rounded-xl border text-[10px] font-bold tracking-wide flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
-                    isDark
-                      ? "bg-slate-900 border-slate-850 hover:bg-slate-800 text-blue-400"
-                      : "bg-blue-50 border-blue-100 hover:bg-blue-100/50 text-blue-600"
-                  }`}
-                >
-                  <Users size={12} />
-                  <span>Import from contact list</span>
-                </button>
               </div>
 
               {/* Friends list container */}
@@ -516,24 +501,6 @@ export function SetupWizardScreen({
       }`}>
         ⚡ All set up inputs will compile and run on simulated device locally
       </div>
-
-      <ContactPickerModal
-        isOpen={isContactPickerOpen}
-        onClose={() => setIsContactPickerOpen(false)}
-        onSelect={(contact) => {
-          if (friends.some(f => f.toLowerCase() === contact.name.toLowerCase())) {
-            setErrorMsg("This name is already added.");
-            return;
-          }
-          if (friends.length >= 7) {
-            setErrorMsg("Maximum 7 participants allowed in simulation.");
-            return;
-          }
-          setFriends([...friends, contact.name]);
-          setErrorMsg(null);
-        }}
-        theme={theme}
-      />
     </div>
   );
 }
