@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a" />
+      <stop offset="100%" stop-color="#1e293b" />
+    </linearGradient>
+    <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8" />
+      <stop offset="50%" stop-color="#3b82f6" />
+      <stop offset="100%" stop-color="#8b5cf6" />
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#000000" flood-opacity="0.4" />
+    </filter>
+  </defs>
+  <!-- Background -->
+  <rect width="512" height="512" rx="112" fill="url(#bgGrad)" />
+  <!-- App Logo (Stylized 'T' & 'S' as overlapping paths representing split paths) -->
+  <g filter="url(#shadow)" transform="translate(100, 100)">
+    <!-- Path 1 -->
+    <path d="M 40,30 L 180,30 C 210,30 230,50 230,80 L 230,140 C 230,170 210,190 180,190 L 40,190" fill="none" stroke="url(#logoGrad)" stroke-width="40" stroke-linecap="round" stroke-linejoin="round" />
+    <!-- Path 2 -->
+    <path d="M 270,120 L 130,120 C 100,120 80,140 80,170 L 80,230 C 80,260 100,280 130,280 L 270,280" fill="none" stroke="url(#logoGrad)" stroke-width="40" stroke-linecap="round" stroke-linejoin="round" />
+    <!-- Center Split symbol -->
+    <line x1="155" y1="30" x2="155" y2="280" stroke="#0f172a" stroke-width="24" stroke-linecap="round" />
+    <circle cx="155" cy="155" r="28" fill="url(#logoGrad)" />
+    <circle cx="155" cy="155" r="14" fill="#ffffff" />
+  </g>
+</svg>

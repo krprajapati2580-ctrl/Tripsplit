@@ -709,7 +709,7 @@ export default function App() {
             }`}>
               
               {/* Phone Status Bar */}
-              <div className={`px-5 pt-3 pb-1 flex justify-between items-center text-[10px] font-bold z-40 select-none border-b transition-colors duration-300 ${
+              <div className={`px-5 pt-3 pb-1 hidden lg:flex justify-between items-center text-[10px] font-bold z-40 select-none border-b transition-colors duration-300 ${
                 isOnline 
                   ? (theme === "dark" ? "bg-slate-900 text-slate-300 border-slate-800/80" : "bg-slate-50 text-slate-600 border-slate-100") 
                   : "bg-red-50 text-red-700 border-red-100"
@@ -1338,7 +1338,7 @@ export default function App() {
       </main>
 
       {/* Footer information section */}
-      <footer className={`border-t py-6 px-6 mt-12 transition-colors duration-300 ${
+      <footer className={`border-t py-6 px-6 mt-12 transition-colors duration-300 hidden lg:block ${
         theme === "dark" ? "bg-slate-900 border-slate-800 text-slate-400" : "bg-white border-gray-200 text-gray-500"
       }`}>
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4 text-xs">
