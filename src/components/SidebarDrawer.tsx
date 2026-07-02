@@ -86,6 +86,8 @@ export function SidebarDrawer({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            transition={{ duration: 0.18, ease: "easeOut" }}
+            style={{ willChange: "opacity" }}
             onClick={onClose}
             className="absolute inset-0 bg-slate-950/60 backdrop-blur-xs z-50 cursor-pointer rounded-[32px]"
             id="sidebar-backdrop"
@@ -96,8 +98,9 @@ export function SidebarDrawer({
             initial={{ x: "-100%" }}
             animate={{ x: 0 }}
             exit={{ x: "-100%" }}
-            transition={{ type: "spring", damping: 26, stiffness: 220 }}
-            className={`absolute top-0 left-0 bottom-0 w-[275px] max-w-[85%] h-full shadow-2xl z-50 flex flex-col overflow-hidden rounded-l-[32px] transition-colors duration-300 ${
+            transition={{ type: "spring", damping: 30, stiffness: 350 }}
+            style={{ willChange: "transform" }}
+            className={`absolute top-0 left-0 bottom-0 w-[275px] max-w-[85%] h-full shadow-2xl z-50 flex flex-col overflow-hidden rounded-l-[32px] ${
               theme === "dark" 
                 ? "bg-slate-900 text-white border-r border-slate-800" 
                 : "bg-white text-slate-900 border-r border-slate-200"

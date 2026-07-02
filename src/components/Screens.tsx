@@ -196,8 +196,9 @@ export function DashboardScreen({
                   initial={{ opacity: 0, y: 15 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.95 }}
-                  transition={{ duration: 0.2 }}
-                  className={`rounded-2xl p-4 shadow-2xs border transition-colors flex justify-between items-center relative group ${
+                  transition={{ duration: 0.18, ease: "easeOut" }}
+                  style={{ willChange: "transform, opacity" }}
+                  className={`rounded-2xl p-4 shadow-2xs border flex justify-between items-center relative group ${
                     isDark 
                       ? "bg-slate-900 border-slate-800/80 hover:border-blue-900" 
                       : "bg-white border-slate-100 hover:border-blue-200"

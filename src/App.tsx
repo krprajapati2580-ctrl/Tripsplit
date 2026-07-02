@@ -775,79 +775,129 @@ export default function App() {
                 ) : (
                   <>
                     {simScreen === "dashboard" && (
-                      <DashboardScreen
-                        users={users}
-                        expenses={expenses}
-                        onDeleteExpense={handleDeleteExpense}
-                        onNavigate={setSimScreen}
-                        currencySymbol={currencySymbol}
-                        onStartEdit={(expense) => {
-                          setEditingExpense(expense);
-                          setSimScreen("addExpense");
-                        }}
-                        isOnline={isOnline}
-                        offlineQueue={offlineQueue}
-                        onRemoveQueuedReceipt={handleRemoveQueuedReceipt}
-                        isSyncing={isSyncing}
-                        theme={theme}
-                        onOpenSidebar={() => setIsSidebarOpen(true)}
-                        tripName={tripName}
-                      />
+                      <motion.div
+                        key="dashboard"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                        style={{ willChange: "transform, opacity" }}
+                        className="absolute inset-0 flex flex-col overflow-hidden"
+                      >
+                        <DashboardScreen
+                          users={users}
+                          expenses={expenses}
+                          onDeleteExpense={handleDeleteExpense}
+                          onNavigate={setSimScreen}
+                          currencySymbol={currencySymbol}
+                          onStartEdit={(expense) => {
+                            setEditingExpense(expense);
+                            setSimScreen("addExpense");
+                          }}
+                          isOnline={isOnline}
+                          offlineQueue={offlineQueue}
+                          onRemoveQueuedReceipt={handleRemoveQueuedReceipt}
+                          isSyncing={isSyncing}
+                          theme={theme}
+                          onOpenSidebar={() => setIsSidebarOpen(true)}
+                          tripName={tripName}
+                        />
+                      </motion.div>
                     )}
 
                     {simScreen === "balances" && (
-                      <BalancesScreen
-                        users={users}
-                        expenses={expenses}
-                        onNavigate={setSimScreen}
-                        currencySymbol={currencySymbol}
-                        theme={theme}
-                        onOpenSidebar={() => setIsSidebarOpen(true)}
-                      />
+                      <motion.div
+                        key="balances"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                        style={{ willChange: "transform, opacity" }}
+                        className="absolute inset-0 flex flex-col overflow-hidden"
+                      >
+                        <BalancesScreen
+                          users={users}
+                          expenses={expenses}
+                          onNavigate={setSimScreen}
+                          currencySymbol={currencySymbol}
+                          theme={theme}
+                          onOpenSidebar={() => setIsSidebarOpen(true)}
+                        />
+                      </motion.div>
                     )}
 
                     {simScreen === "addExpense" && (
-                      <AddExpenseScreen
-                        users={users}
-                        expenses={expenses}
-                        onAddExpense={handleAddExpense}
-                        onNavigate={(screen) => {
-                          if (screen === "dashboard") {
-                            setEditingExpense(null);
-                          }
-                          setSimScreen(screen);
-                        }}
-                        currencySymbol={currencySymbol}
-                        editingExpense={editingExpense}
-                        isOnline={isOnline}
-                        onQueueOfflineReceipt={handleQueueOfflineReceipt}
-                        theme={theme}
-                        customGeminiApiKey={customGeminiApiKey}
-                      />
+                      <motion.div
+                        key="addExpense"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                        style={{ willChange: "transform, opacity" }}
+                        className="absolute inset-0 flex flex-col overflow-hidden"
+                      >
+                        <AddExpenseScreen
+                          users={users}
+                          expenses={expenses}
+                          onAddExpense={handleAddExpense}
+                          onNavigate={(screen) => {
+                            if (screen === "dashboard") {
+                              setEditingExpense(null);
+                            }
+                            setSimScreen(screen);
+                          }}
+                          currencySymbol={currencySymbol}
+                          editingExpense={editingExpense}
+                          isOnline={isOnline}
+                          onQueueOfflineReceipt={handleQueueOfflineReceipt}
+                          theme={theme}
+                          customGeminiApiKey={customGeminiApiKey}
+                        />
+                      </motion.div>
                     )}
 
                      {simScreen === "setupWizard" && (
-                      <SetupWizardScreen
-                        theme={theme}
-                        onComplete={handleSetupComplete}
-                        onCancel={() => setSimScreen("dashboard")}
-                        canCancel={users.length > 0}
-                      />
-                    )}
+                       <motion.div
+                         key="setupWizard"
+                         initial={{ opacity: 0, y: 10 }}
+                         animate={{ opacity: 1, y: 0 }}
+                         exit={{ opacity: 0, y: -10 }}
+                         transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                         style={{ willChange: "transform, opacity" }}
+                         className="absolute inset-0 flex flex-col overflow-hidden"
+                       >
+                         <SetupWizardScreen
+                           theme={theme}
+                           onComplete={handleSetupComplete}
+                           onCancel={() => setSimScreen("dashboard")}
+                           canCancel={users.length > 0}
+                         />
+                       </motion.div>
+                     )}
 
                     {simScreen === "settings" && (
-                      <SettingsScreen
-                        theme={theme}
-                        setTheme={setTheme}
-                        onOpenSidebar={() => setIsSidebarOpen(true)}
-                        customGeminiApiKey={customGeminiApiKey}
-                        onCustomGeminiApiKeyChange={setCustomGeminiApiKey}
-                        googleSheetsWebhookUrl={googleSheetsWebhookUrl}
-                        onGoogleSheetsWebhookUrlChange={setGoogleSheetsWebhookUrl}
-                        tripBudget={tripBudget}
-                        setTripBudget={setTripBudget}
-                        currencySymbol={currencySymbol}
-                      />
+                      <motion.div
+                        key="settings"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                        style={{ willChange: "transform, opacity" }}
+                        className="absolute inset-0 flex flex-col overflow-hidden"
+                      >
+                        <SettingsScreen
+                          theme={theme}
+                          setTheme={setTheme}
+                          onOpenSidebar={() => setIsSidebarOpen(true)}
+                          customGeminiApiKey={customGeminiApiKey}
+                          onCustomGeminiApiKeyChange={setCustomGeminiApiKey}
+                          googleSheetsWebhookUrl={googleSheetsWebhookUrl}
+                          onGoogleSheetsWebhookUrlChange={setGoogleSheetsWebhookUrl}
+                          tripBudget={tripBudget}
+                          setTripBudget={setTripBudget}
+                          currencySymbol={currencySymbol}
+                        />
+                      </motion.div>
                     )}
                   </>
                 )}
@@ -859,14 +909,17 @@ export default function App() {
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
+                      transition={{ duration: 0.18, ease: "easeOut" }}
+                      style={{ willChange: "opacity" }}
                       className="absolute inset-0 bg-slate-950/70 backdrop-blur-xs z-50 flex flex-col justify-end rounded-[32px]"
                     >
                       <motion.div
                         initial={{ y: "100%" }}
                         animate={{ y: 0 }}
                         exit={{ y: "100%" }}
-                        transition={{ type: "spring", damping: 25, stiffness: 220 }}
-                        className={`w-full max-h-[90%] rounded-t-[24px] border-t flex flex-col overflow-hidden transition-colors duration-300 ${
+                        transition={{ type: "spring", damping: 30, stiffness: 350 }}
+                        style={{ willChange: "transform" }}
+                        className={`w-full max-h-[90%] rounded-t-[24px] border-t flex flex-col overflow-hidden ${
                           theme === "dark" 
                             ? "bg-slate-900 border-slate-800 text-white" 
                             : "bg-white border-slate-200 text-slate-900"
@@ -1102,7 +1155,7 @@ export default function App() {
                       {simScreen === "dashboard" && (
                         <motion.span
                           layoutId="activeBottomNav"
-                          className={`absolute inset-x-4 -top-1 bottom-0 rounded-full -z-10 border transition-colors ${
+                          className={`absolute inset-x-4 -top-1 bottom-0 rounded-full -z-10 border ${
                             theme === "dark" ? "bg-blue-950/40 border-blue-900/40" : "bg-blue-50/75 border-blue-100/50"
                           }`}
                           transition={{ type: "spring", stiffness: 300, damping: 30 }}
@@ -1127,7 +1180,7 @@ export default function App() {
                       {simScreen === "balances" && (
                         <motion.span
                           layoutId="activeBottomNav"
-                          className={`absolute inset-x-4 -top-1 bottom-0 rounded-full -z-10 border transition-colors ${
+                          className={`absolute inset-x-4 -top-1 bottom-0 rounded-full -z-10 border ${
                             theme === "dark" ? "bg-blue-950/40 border-blue-900/40" : "bg-blue-50/75 border-blue-100/50"
                           }`}
                           transition={{ type: "spring", stiffness: 300, damping: 30 }}
