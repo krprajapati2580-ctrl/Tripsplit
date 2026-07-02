@@ -529,7 +529,7 @@ export default function App() {
       theme === "dark" ? "bg-slate-950 text-slate-100" : "bg-[#f8fafc] text-slate-900"
     }`}>
       {/* Top Header Bar */}
-      <header className={`border-b px-6 py-4 shadow-2xs sticky top-0 z-50 transition-colors duration-300 ${
+      <header className={`border-b px-6 py-4 shadow-2xs sticky top-0 z-50 transition-colors duration-300 hidden lg:block ${
         theme === "dark" ? "bg-slate-900/90 border-slate-800/80 backdrop-blur-md" : "bg-white border-slate-200/80"
       }`}>
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
@@ -655,11 +655,11 @@ export default function App() {
       </header>
 
       {/* Main Split Interface */}
-      <main className="flex-1 max-w-7xl w-full mx-auto p-4 lg:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+      <main className="flex-1 max-w-7xl w-full mx-auto p-0 lg:p-6 grid grid-cols-1 lg:grid-cols-12 gap-0 lg:gap-6 items-stretch">
         
         {/* LEFT COLUMN: THE PHONE EMULATOR (4 cols on wide screen) */}
-        <div className="lg:col-span-5 xl:col-span-4 flex flex-col items-center justify-start">
-          <div className="w-full text-center mb-3">
+        <div className="lg:col-span-5 xl:col-span-4 flex flex-col items-center justify-start w-full h-[100dvh] lg:h-auto">
+          <div className="w-full text-center mb-3 hidden lg:block">
             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
               📱 Live Android App Simulator
             </span>
@@ -669,7 +669,7 @@ export default function App() {
           </div>
 
           {/* Interactive Connectivity Controller Widget */}
-          <div className={`w-full max-w-[340px] mb-4 rounded-2xl p-3 border shadow-xs flex items-center justify-between transition-colors duration-300 ${
+          <div className={`w-full max-w-[340px] mb-4 rounded-2xl p-3 border shadow-xs flex items-center justify-between transition-colors duration-300 hidden lg:flex ${
             theme === "dark" ? "bg-slate-900 border-slate-800 text-slate-100" : "bg-white border-slate-200/80 text-slate-900"
           }`}>
             <div className="flex items-center gap-2">
@@ -696,15 +696,15 @@ export default function App() {
           </div>
 
           {/* Physical Phone Frame */}
-          <div className="relative w-full max-w-[340px] aspect-[9/18.5] bg-slate-950 rounded-[48px] p-3.5 shadow-2xl border-4 border-slate-900 flex flex-col overflow-hidden">
+          <div className="relative w-full lg:max-w-[340px] h-[100dvh] lg:h-auto lg:aspect-[9/18.5] bg-slate-950 rounded-none lg:rounded-[48px] p-0 lg:p-3.5 shadow-none lg:shadow-2xl border-0 lg:border-4 border-slate-900 flex flex-col overflow-hidden">
             {/* Phone Speaker Cutout */}
-            <div className="absolute top-2.5 left-1/2 -translate-x-1/2 w-24 h-4 bg-black rounded-full z-30 flex items-center justify-center gap-2">
+            <div className="absolute top-2.5 left-1/2 -translate-x-1/2 w-24 h-4 bg-black rounded-full z-30 flex items-center justify-center gap-2 hidden lg:flex">
               <div className="w-12 h-1 bg-slate-800 rounded-full" />
               <div className="w-2.5 h-2.5 bg-slate-950 rounded-full" />
             </div>
 
             {/* Simulated Phone Screen Container */}
-            <div className={`relative flex-1 rounded-[32px] overflow-hidden flex flex-col shadow-inner select-none z-20 transition-colors duration-300 ${
+            <div className={`relative flex-1 rounded-none lg:rounded-[32px] overflow-hidden flex flex-col shadow-none lg:shadow-inner select-none z-20 transition-colors duration-300 ${
               theme === "dark" ? "bg-slate-950" : "bg-white"
             }`}>
               
@@ -1126,7 +1126,7 @@ export default function App() {
           </div>
 
           {/* Quick Friend Addition Tool panel (Below phone) */}
-          <div className={`w-full max-w-[340px] mt-4 rounded-2xl p-4 shadow-2xs border transition-colors duration-300 ${
+          <div className={`w-full max-w-[340px] mt-4 rounded-2xl p-4 shadow-2xs border transition-colors duration-300 hidden lg:block ${
             theme === "dark" ? "bg-slate-900 border-slate-800 text-slate-100" : "bg-white border-slate-150 text-slate-900"
           }`}>
             <div className="flex justify-between items-center">
@@ -1239,7 +1239,7 @@ export default function App() {
         </div>
 
         {/* RIGHT COLUMN: KOTLIN IDE SOURCE VIEWER (8 cols on wide screen) */}
-        <div className="lg:col-span-7 xl:col-span-8 flex flex-col">
+        <div className="lg:col-span-7 xl:col-span-8 flex flex-col hidden lg:flex">
           <div className="mb-3">
             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
               💻 Complete Kotlin & Jetpack Compose Source Code
