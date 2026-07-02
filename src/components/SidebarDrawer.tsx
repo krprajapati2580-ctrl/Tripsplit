@@ -1,7 +1,7 @@
 import React from "react";
 import { 
   X, Smartphone, Mail, Award, Sun, Moon, Pencil, Check, Download, Map,
-  History, Eye, Trash2, Archive, Calendar, Users, DollarSign, Key
+  History, Eye, Trash2, Archive, Calendar, Users, DollarSign, LogOut, Phone, Settings
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { User, Expense, PastTrip } from "../types";
@@ -36,8 +36,9 @@ interface SidebarDrawerProps {
   onReviewPastTrip: (trip: PastTrip) => void;
   onDeletePastTrip: (tripId: string) => void;
   onSaveCurrentToHistory: () => void;
-  customGeminiApiKey?: string;
-  onCustomGeminiApiKeyChange?: (key: string) => void;
+  profileMobile?: string;
+  onLogout?: () => void;
+  onOpenSettings?: () => void;
 }
 
 export function SidebarDrawer({
@@ -69,8 +70,9 @@ export function SidebarDrawer({
   onReviewPastTrip,
   onDeletePastTrip,
   onSaveCurrentToHistory,
-  customGeminiApiKey,
-  onCustomGeminiApiKeyChange,
+  profileMobile = "9876543210",
+  onLogout,
+  onOpenSettings
 }: SidebarDrawerProps) {
   const totalTripExpenses = expenses.reduce((sum, exp) => sum + exp.totalAmount, 0);
   const spentPercentage = Math.min(100, Math.round((totalTripExpenses / tripBudget) * 100));
@@ -217,10 +219,18 @@ export function SidebarDrawer({
                   )}
                 </div>
 
-                {/* Profile Email Block */}
-                <div className="flex items-center gap-1 text-[10px] text-slate-400 mt-0.5 z-10 select-all justify-center">
-                  <Mail size={10} className="text-slate-500" />
-                  <span>{profileEmail}</span>
+                {/* Profile Email & Mobile Block */}
+                <div className="flex flex-col gap-0.5 items-center mt-1 z-10 select-all justify-center">
+                  <div className="flex items-center gap-1 text-[10px] text-slate-450">
+                    <Mail size={10} className="text-slate-500" />
+                    <span>{profileEmail}</span>
+                  </div>
+                  {profileMobile && (
+                    <div className="flex items-center gap-1 text-[10px] text-slate-450">
+                      <Phone size={10} className="text-slate-500" />
+                      <span>{profileMobile}</span>
+                    </div>
+                  )}
                 </div>
 
                 {/* Bio & Member Badge */}
@@ -398,39 +408,7 @@ export function SidebarDrawer({
                 </div>
               </div>
 
-              {/* 2.5 Custom Gemini API Key configuration */}
-              <div className="space-y-1.5">
-                <div className="flex justify-between items-center px-1">
-                  <h5 className="text-[9px] font-bold uppercase tracking-widest text-slate-500">
-                    Custom Gemini Key (Mobile / Free Tier)
-                  </h5>
-                  <a 
-                    href="https://aistudio.google.com/" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="text-[8px] font-bold text-blue-500 hover:underline cursor-pointer"
-                  >
-                    Get Free Key 🔑
-                  </a>
-                </div>
-                <div className={`p-2 rounded-xl border flex items-center gap-2 ${
-                  theme === "dark" ? "bg-slate-950/40 border-slate-800" : "bg-white border-slate-200 shadow-3xs"
-                }`}>
-                  <Key size={14} className="text-slate-400 shrink-0" />
-                  <input
-                    type="password"
-                    value={customGeminiApiKey || ""}
-                    onChange={(e) => onCustomGeminiApiKeyChange?.(e.target.value)}
-                    placeholder="AI Studio Free API Key..."
-                    className={`w-full text-[10px] bg-transparent outline-none border-none font-mono ${
-                      theme === "dark" ? "text-white placeholder-slate-600" : "text-slate-800 placeholder-slate-400"
-                    }`}
-                  />
-                </div>
-                <p className="text-[7.5px] text-slate-400 px-1 leading-normal">
-                  Providing your free key allows offline caching &amp; direct-to-Gemini scanning when running as a standalone mobile app or on the free tier.
-                </p>
-              </div>
+
 
               {/* 3. Interactive Budget Planner */}
               <div className={`p-3 rounded-xl border ${
@@ -594,6 +572,47 @@ export function SidebarDrawer({
                   >
                     <Map size={12} />
                     <span>Start New Trip 🗺️</span>
+                  </button>
+                </div>
+              )}
+
+              {/* 6.5. Settings Option */}
+              {onOpenSettings && (
+                <div className="space-y-1.5 pt-1">
+                  <h5 className="text-[9px] font-bold uppercase tracking-widest text-slate-500 px-1">
+                    App Preferences
+                  </h5>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onOpenSettings();
+                      onClose();
+                    }}
+                    className={`w-full py-2 px-3 text-[10px] font-bold rounded-xl border flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                      theme === "dark"
+                        ? "bg-slate-950 border-slate-850 text-slate-200 hover:bg-slate-900 hover:text-white"
+                        : "bg-white border-slate-200 text-slate-750 hover:bg-slate-50 hover:text-slate-900 shadow-3xs"
+                    }`}
+                  >
+                    <Settings size={12} className="text-blue-500" />
+                    <span>App Settings & Sync</span>
+                  </button>
+                </div>
+              )}
+
+              {/* 7. Logout Option */}
+              {onLogout && (
+                <div className="pt-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onLogout();
+                      onClose();
+                    }}
+                    className="w-full py-2 px-3 text-[10px] font-bold rounded-xl border border-red-500/20 bg-red-500/5 hover:bg-red-500/10 text-red-500 flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                  >
+                    <LogOut size={12} />
+                    <span>Log Out Account</span>
                   </button>
                 </div>
               )}

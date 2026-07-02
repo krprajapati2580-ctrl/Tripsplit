@@ -5,6 +5,9 @@ import { KOTLIN_CODE_BLOCKS } from "./kotlinCode";
 import { DashboardScreen, BalancesScreen, AddExpenseScreen } from "./components/Screens";
 import { SidebarDrawer } from "./components/SidebarDrawer";
 import { SetupWizardScreen } from "./components/SetupWizardScreen";
+import { AuthScreen } from "./components/AuthScreen";
+import { ContactPickerModal } from "./components/ContactPickerModal";
+import { SettingsScreen } from "./components/SettingsScreen";
 import {
   Smartphone,
   Code,
@@ -33,7 +36,8 @@ import {
   Save,
   DollarSign,
   Download,
-  Map
+  Map,
+  Settings
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
@@ -92,7 +96,7 @@ export default function App() {
   const [tripName, setTripName] = useState(() => {
     return localStorage.getItem("tripsplit_tripName") || "Goa Adventure";
   });
-  const [simScreen, setSimScreen] = useState<"dashboard" | "balances" | "addExpense" | "setupWizard">("dashboard");
+  const [simScreen, setSimScreen] = useState<"dashboard" | "balances" | "addExpense" | "setupWizard" | "settings">("dashboard");
   const [theme, setTheme] = useState<"light" | "dark">((() => {
     return (localStorage.getItem("tripsplit_theme") as "light" | "dark") || "light";
   }) as any);
@@ -104,6 +108,18 @@ export default function App() {
   });
   const [friendLimitError, setFriendLimitError] = useState<string | null>(null);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
+
+  // Authentication State
+  const [isUserAuthenticated, setIsUserAuthenticated] = useState<boolean>(() => {
+    return localStorage.getItem("tripsplit_is_auth") === "true";
+  });
+  const [profileMobile, setProfileMobile] = useState(() => {
+    return localStorage.getItem("tripsplit_profileMobile") || "9876543210";
+  });
+  const [isMainContactPickerOpen, setIsMainContactPickerOpen] = useState(false);
+  const [googleSheetsWebhookUrl, setGoogleSheetsWebhookUrl] = useState(() => {
+    return localStorage.getItem("tripsplit_sheets_webhook_url") || "";
+  });
 
   // Sidebar and Custom Profile State
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -194,6 +210,18 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem("tripsplit_tripName", tripName);
   }, [tripName]);
+
+  useEffect(() => {
+    localStorage.setItem("tripsplit_is_auth", isUserAuthenticated.toString());
+  }, [isUserAuthenticated]);
+
+  useEffect(() => {
+    localStorage.setItem("tripsplit_profileMobile", profileMobile);
+  }, [profileMobile]);
+
+  useEffect(() => {
+    localStorage.setItem("tripsplit_sheets_webhook_url", googleSheetsWebhookUrl);
+  }, [googleSheetsWebhookUrl]);
 
   // Auto-dismiss the friendly snackbar after 4 seconds
   useEffect(() => {
@@ -356,6 +384,42 @@ export default function App() {
     setUsers([...users, newUser]);
     setNewFriendName("");
     setShowAddFriend(false);
+  };
+
+  const handleImportContact = (contactName: string) => {
+    if (users.length >= MAX_PARTICIPANTS) {
+      setFriendLimitError("Maximum limit of 7 friends reached for this trip.");
+      return;
+    }
+    const name = contactName.trim().charAt(0).toUpperCase() + contactName.trim().slice(1);
+    if (users.some((u) => u.name.toLowerCase() === name.toLowerCase())) {
+      setFriendLimitError("This friend is already added to the trip!");
+      return;
+    }
+    const newUser: User = {
+      id: String(Date.now()),
+      name: name,
+    };
+    setUsers([...users, newUser]);
+  };
+
+  const logUserToGoogleSheet = async (name: string, email: string, mobile: string) => {
+    try {
+      await fetch("/api/log-user", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name,
+          email,
+          mobile,
+          customWebhookUrl: googleSheetsWebhookUrl,
+        }),
+      });
+    } catch (error) {
+      console.error("Failed to log user to Google Sheet:", error);
+    }
   };
 
   // Add/Update Expense in the simulator
@@ -708,90 +772,98 @@ export default function App() {
               theme === "dark" ? "bg-slate-950" : "bg-white"
             }`}>
               
-              {/* Phone Status Bar */}
-              <div className={`px-5 pt-3 pb-1 hidden lg:flex justify-between items-center text-[10px] font-bold z-40 select-none border-b transition-colors duration-300 ${
-                isOnline 
-                  ? (theme === "dark" ? "bg-slate-900 text-slate-300 border-slate-800/80" : "bg-slate-50 text-slate-600 border-slate-100") 
-                  : "bg-red-50 text-red-700 border-red-100"
-              }`}>
-                <span>{currentTime || "10:00 AM"}</span>
-                <div className="flex items-center gap-1.5">
-                  {isOnline ? (
-                    <>
-                      <Wifi size={10} className="text-emerald-600" />
-                      <span className={`text-[9px] ${theme === "dark" ? "text-slate-400" : "text-slate-500"}`}>5G</span>
-                    </>
-                  ) : (
-                    <>
-                      <WifiOff size={10} className="text-red-500" />
-                      <span className="text-[8px] font-black uppercase bg-red-100 text-red-700 px-1 rounded">Offline</span>
-                    </>
-                  )}
-                  <Battery size={12} className="text-slate-500" />
-                </div>
-              </div>
-
               {/* Live Simulated Screens Wrapper */}
               <div className="flex-1 overflow-hidden relative">
-                {simScreen === "dashboard" && (
-                  <DashboardScreen
-                    users={users}
-                    expenses={expenses}
-                    onDeleteExpense={handleDeleteExpense}
-                    onNavigate={setSimScreen}
-                    currencySymbol={currencySymbol}
-                    onStartEdit={(expense) => {
-                      setEditingExpense(expense);
-                      setSimScreen("addExpense");
+                {!isUserAuthenticated ? (
+                  <AuthScreen
+                    theme={theme}
+                    onAuthenticate={(name, email, mobile) => {
+                      setProfileName(name);
+                      setProfileEmail(email);
+                      setProfileMobile(mobile);
+                      setIsUserAuthenticated(true);
+                      setSimScreen("dashboard");
+                      logUserToGoogleSheet(name, email, mobile);
                     }}
-                    isOnline={isOnline}
-                    offlineQueue={offlineQueue}
-                    onRemoveQueuedReceipt={handleRemoveQueuedReceipt}
-                    isSyncing={isSyncing}
-                    theme={theme}
-                    onOpenSidebar={() => setIsSidebarOpen(true)}
-                    tripName={tripName}
                   />
-                )}
+                ) : (
+                  <>
+                    {simScreen === "dashboard" && (
+                      <DashboardScreen
+                        users={users}
+                        expenses={expenses}
+                        onDeleteExpense={handleDeleteExpense}
+                        onNavigate={setSimScreen}
+                        currencySymbol={currencySymbol}
+                        onStartEdit={(expense) => {
+                          setEditingExpense(expense);
+                          setSimScreen("addExpense");
+                        }}
+                        isOnline={isOnline}
+                        offlineQueue={offlineQueue}
+                        onRemoveQueuedReceipt={handleRemoveQueuedReceipt}
+                        isSyncing={isSyncing}
+                        theme={theme}
+                        onOpenSidebar={() => setIsSidebarOpen(true)}
+                        tripName={tripName}
+                      />
+                    )}
 
-                {simScreen === "balances" && (
-                  <BalancesScreen
-                    users={users}
-                    expenses={expenses}
-                    onNavigate={setSimScreen}
-                    currencySymbol={currencySymbol}
-                    theme={theme}
-                    onOpenSidebar={() => setIsSidebarOpen(true)}
-                  />
-                )}
+                    {simScreen === "balances" && (
+                      <BalancesScreen
+                        users={users}
+                        expenses={expenses}
+                        onNavigate={setSimScreen}
+                        currencySymbol={currencySymbol}
+                        theme={theme}
+                        onOpenSidebar={() => setIsSidebarOpen(true)}
+                      />
+                    )}
 
-                {simScreen === "addExpense" && (
-                  <AddExpenseScreen
-                    users={users}
-                    expenses={expenses}
-                    onAddExpense={handleAddExpense}
-                    onNavigate={(screen) => {
-                      if (screen === "dashboard") {
-                        setEditingExpense(null);
-                      }
-                      setSimScreen(screen);
-                    }}
-                    currencySymbol={currencySymbol}
-                    editingExpense={editingExpense}
-                    isOnline={isOnline}
-                    onQueueOfflineReceipt={handleQueueOfflineReceipt}
-                    theme={theme}
-                    customGeminiApiKey={customGeminiApiKey}
-                  />
-                )}
+                    {simScreen === "addExpense" && (
+                      <AddExpenseScreen
+                        users={users}
+                        expenses={expenses}
+                        onAddExpense={handleAddExpense}
+                        onNavigate={(screen) => {
+                          if (screen === "dashboard") {
+                            setEditingExpense(null);
+                          }
+                          setSimScreen(screen);
+                        }}
+                        currencySymbol={currencySymbol}
+                        editingExpense={editingExpense}
+                        isOnline={isOnline}
+                        onQueueOfflineReceipt={handleQueueOfflineReceipt}
+                        theme={theme}
+                        customGeminiApiKey={customGeminiApiKey}
+                      />
+                    )}
 
-                 {simScreen === "setupWizard" && (
-                  <SetupWizardScreen
-                    theme={theme}
-                    onComplete={handleSetupComplete}
-                    onCancel={() => setSimScreen("dashboard")}
-                    canCancel={users.length > 0}
-                  />
+                     {simScreen === "setupWizard" && (
+                      <SetupWizardScreen
+                        theme={theme}
+                        onComplete={handleSetupComplete}
+                        onCancel={() => setSimScreen("dashboard")}
+                        canCancel={users.length > 0}
+                      />
+                    )}
+
+                    {simScreen === "settings" && (
+                      <SettingsScreen
+                        theme={theme}
+                        setTheme={setTheme}
+                        onOpenSidebar={() => setIsSidebarOpen(true)}
+                        customGeminiApiKey={customGeminiApiKey}
+                        onCustomGeminiApiKeyChange={setCustomGeminiApiKey}
+                        googleSheetsWebhookUrl={googleSheetsWebhookUrl}
+                        onGoogleSheetsWebhookUrlChange={setGoogleSheetsWebhookUrl}
+                        tripBudget={tripBudget}
+                        setTripBudget={setTripBudget}
+                        currencySymbol={currencySymbol}
+                      />
+                    )}
+                  </>
                 )}
 
                 {/* 1.6. Reviewed Past Trip Overlay Details Modal */}
@@ -1010,7 +1082,7 @@ export default function App() {
                 </AnimatePresence>
 
                 {/* Simulated FAB (Floating Action Button) */}
-                {simScreen !== "addExpense" && simScreen !== "setupWizard" && (
+                {simScreen !== "addExpense" && simScreen !== "setupWizard" && simScreen !== "settings" && (
                   <motion.button
                     whileTap={{ scale: 0.95 }}
                     onClick={() => {
@@ -1112,8 +1184,9 @@ export default function App() {
                 onReviewPastTrip={setReviewedPastTrip}
                 onDeletePastTrip={handleDeletePastTrip}
                 onSaveCurrentToHistory={handleSaveCurrentToHistory}
-                customGeminiApiKey={customGeminiApiKey}
-                onCustomGeminiApiKeyChange={setCustomGeminiApiKey}
+                profileMobile={profileMobile}
+                onLogout={() => setIsUserAuthenticated(false)}
+                onOpenSettings={() => setSimScreen("settings")}
               />
 
               {/* Physical gesture indicator pill at the bottom */}
@@ -1170,7 +1243,7 @@ export default function App() {
                 animate={{ opacity: 1, height: "auto" }}
                 exit={{ opacity: 0, height: 0 }}
                 onSubmit={handleAddFriend}
-                className="mt-3 pt-3 border-t border-slate-100/10"
+                className="mt-3 pt-3 border-t border-slate-100/10 space-y-2"
               >
                 <div 
                   className="flex gap-2 relative"
@@ -1209,6 +1282,16 @@ export default function App() {
                     Add
                   </button>
                 </div>
+
+                {users.length < MAX_PARTICIPANTS && (
+                  <button
+                    type="button"
+                    onClick={() => setIsMainContactPickerOpen(true)}
+                    className="w-full py-1.5 border border-dashed rounded-lg text-xs font-bold transition-colors flex items-center justify-center gap-1.5 cursor-pointer border-blue-500/30 text-blue-500 hover:bg-blue-500/5 select-none"
+                  >
+                    <span>Import from contacts 📱</span>
+                  </button>
+                )}
               </motion.form>
             )}
 
@@ -1343,11 +1426,11 @@ export default function App() {
       }`}>
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4 text-xs">
           <div>
-            <p className={`font-bold transition-colors ${theme === "dark" ? "text-slate-300" : "text-gray-700"}`}>TripSplit Android Expense Manager Architecture</p>
-            <p className="mt-0.5">Designed according to clean MVVM boundaries, state-hoisting, and Material 3 design systems.</p>
+            <p className={`font-bold transition-colors ${theme === "dark" ? "text-slate-300" : "text-gray-700"}`}>TripSplit - Smart Expense Splitter</p>
+            <p className="mt-0.5">A modern offline-first utility to easily track and split travel group expenses.</p>
           </div>
           <div className={`flex items-center gap-4 ${theme === "dark" ? "text-slate-500" : "text-slate-400"}`}>
-            <span>Powered by React 19 & Jetpack Compose 1.6</span>
+            <span>Powered by React 18 & Vite</span>
             <span>•</span>
             <span>Google AI Studio Build</span>
           </div>
@@ -1394,6 +1477,17 @@ export default function App() {
           </div>
         )}
       </AnimatePresence>
+
+      {/* Contact Picker Modal */}
+      <ContactPickerModal
+        isOpen={isMainContactPickerOpen}
+        onClose={() => setIsMainContactPickerOpen(false)}
+        onSelect={(contact) => {
+          handleImportContact(contact.name);
+          setIsMainContactPickerOpen(false);
+        }}
+        theme={theme}
+      />
     </div>
   );
 }

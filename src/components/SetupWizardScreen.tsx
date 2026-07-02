@@ -13,6 +13,8 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { User } from "../types";
+import { ContactPickerModal, Contact } from "./ContactPickerModal";
+import { TripSplitLogo } from "./TripSplitLogo";
 
 interface SetupWizardScreenProps {
   theme: "light" | "dark";
@@ -42,6 +44,7 @@ export function SetupWizardScreen({
   const [friendInput, setFriendInput] = useState("");
   const [friends, setFriends] = useState<string[]>([]);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [isContactPickerOpen, setIsContactPickerOpen] = useState(false);
 
   // Add friend to the wizard list
   const handleAddFriend = (e?: React.FormEvent) => {
@@ -178,8 +181,8 @@ export function SetupWizardScreen({
               className="space-y-4"
             >
               <div className="text-center py-2">
-                <div className="w-10 h-10 mx-auto rounded-full bg-blue-500/10 flex items-center justify-center mb-1 text-blue-500">
-                  <Compass size={20} className="animate-pulse" />
+                <div className="flex justify-center mb-1.5">
+                  <TripSplitLogo size={44} />
                 </div>
                 <h3 className="text-xs font-black tracking-tight">Where are you going?</h3>
                 <p className="text-[10px] text-slate-500">Set up your budget limits and base currency.</p>
@@ -299,30 +302,45 @@ export function SetupWizardScreen({
               </div>
 
               {/* Friend Add Input Block */}
-              <form onSubmit={handleAddFriend} className="flex gap-1.5">
-                <input
-                  type="text"
-                  value={friendInput}
-                  onChange={(e) => {
-                    setFriendInput(e.target.value);
-                    setErrorMsg(null);
-                  }}
-                  placeholder="Friend's Name (e.g. Alice)"
-                  maxLength={15}
-                  className={`flex-1 px-3 py-2 text-xs rounded-xl border focus:ring-1 focus:outline-hidden font-medium ${
-                    isDark 
-                      ? "bg-slate-900 border-slate-850 text-white focus:ring-blue-600 focus:border-blue-600" 
-                      : "bg-white border-slate-200 text-slate-900 focus:ring-blue-500 focus:border-blue-500"
-                  }`}
-                />
+              <div className="space-y-2">
+                <form onSubmit={handleAddFriend} className="flex gap-1.5">
+                  <input
+                    type="text"
+                    value={friendInput}
+                    onChange={(e) => {
+                      setFriendInput(e.target.value);
+                      setErrorMsg(null);
+                    }}
+                    placeholder="Friend's Name (e.g. Alice)"
+                    maxLength={15}
+                    className={`flex-1 px-3 py-2 text-xs rounded-xl border focus:ring-1 focus:outline-hidden font-medium ${
+                      isDark 
+                        ? "bg-slate-900 border-slate-850 text-white focus:ring-blue-600 focus:border-blue-600" 
+                        : "bg-white border-slate-200 text-slate-900 focus:ring-blue-500 focus:border-blue-500"
+                    }`}
+                  />
+                  <button
+                    type="submit"
+                    className="px-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-colors flex items-center justify-center cursor-pointer shrink-0"
+                  >
+                    <Plus size={14} />
+                    <span className="ml-0.5">Add</span>
+                  </button>
+                </form>
+
                 <button
-                  type="submit"
-                  className="px-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-colors flex items-center justify-center cursor-pointer shrink-0"
+                  type="button"
+                  onClick={() => setIsContactPickerOpen(true)}
+                  className={`w-full py-1.5 px-3 rounded-xl border text-[10px] font-bold tracking-wide flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                    isDark
+                      ? "bg-slate-900 border-slate-850 hover:bg-slate-800 text-blue-400"
+                      : "bg-blue-50 border-blue-100 hover:bg-blue-100/50 text-blue-600"
+                  }`}
                 >
-                  <Plus size={14} />
-                  <span className="ml-0.5">Add</span>
+                  <Users size={12} />
+                  <span>Import from contact list</span>
                 </button>
-              </form>
+              </div>
 
               {/* Friends list container */}
               <div className="space-y-1.5">
@@ -498,6 +516,24 @@ export function SetupWizardScreen({
       }`}>
         ⚡ All set up inputs will compile and run on simulated device locally
       </div>
+
+      <ContactPickerModal
+        isOpen={isContactPickerOpen}
+        onClose={() => setIsContactPickerOpen(false)}
+        onSelect={(contact) => {
+          if (friends.some(f => f.toLowerCase() === contact.name.toLowerCase())) {
+            setErrorMsg("This name is already added.");
+            return;
+          }
+          if (friends.length >= 7) {
+            setErrorMsg("Maximum 7 participants allowed in simulation.");
+            return;
+          }
+          setFriends([...friends, contact.name]);
+          setErrorMsg(null);
+        }}
+        theme={theme}
+      />
     </div>
   );
 }

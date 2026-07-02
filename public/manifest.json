@@ -1,7 +1,8 @@
 {
+  "id": ".",
   "name": "TripSplit - Expense Manager",
   "short_name": "TripSplit",
-  "description": "Full-stack Jetpack Compose + Material 3 Architecture & Split Engine Prototype",
+  "description": "Easily track and split travel group expenses offline-first.",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#0f172a",
@@ -9,13 +10,13 @@
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "/icon.svg",
+      "src": "icon.svg",
       "sizes": "192x192 512x512",
       "type": "image/svg+xml",
       "purpose": "any"
     },
     {
-      "src": "/icon.svg",
+      "src": "icon.svg",
       "sizes": "192x192 512x512",
       "type": "image/svg+xml",
       "purpose": "maskable"

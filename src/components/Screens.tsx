@@ -3,6 +3,7 @@ import { User, Expense, Debt } from "../types";
 import { calculateBalances, calculateSimplifiedDebts, formatCurrency } from "../utils";
 import { Plus, List, ArrowLeft, Users, DollarSign, Check, Trash2, CheckCircle, HelpCircle, Camera, Lock, Pencil, MoreVertical } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
+import { TripSplitLogo } from "./TripSplitLogo";
 
 interface ScreenProps {
   users: User[];
@@ -64,6 +65,7 @@ export function DashboardScreen({
               <MoreVertical size={18} />
             </button>
           )}
+          <TripSplitLogo size={24} className="shrink-0" />
           <div>
             <h1 className={`text-sm font-black font-sans tracking-tight truncate max-w-[120px] ${isDark ? "text-white" : "text-slate-900"}`}>
               {tripName || "Trip Expenses"}

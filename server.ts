@@ -105,6 +105,52 @@ app.post("/api/scan-receipt", async (req, res) => {
   }
 });
 
+// Sync User Logins/Signups to Google Sheet Webhook (for free)
+app.post("/api/log-user", async (req, res) => {
+  try {
+    const { name, email, mobile, customWebhookUrl } = req.body;
+
+    const webhookUrl = customWebhookUrl || process.env.GOOGLE_SHEETS_WEBHOOK_URL;
+
+    if (!webhookUrl) {
+      return res.json({
+        success: true,
+        synced: false,
+        message: "Logged locally in browser. No remote Google Sheet webhook is configured."
+      });
+    }
+
+    const payload = {
+      timestamp: new Date().toISOString(),
+      name: name || "Anonymous",
+      email: email || "N/A",
+      mobile: mobile || "N/A",
+      source: "TripSplit React Web App"
+    };
+
+    // Forward the POST request to the Apps Script URL
+    const response = await fetch(webhookUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+
+    res.json({
+      success: true,
+      synced: true,
+      message: "Successfully synced with developer's Google Sheet!"
+    });
+  } catch (error: any) {
+    console.error("Error logging user registration to Google Sheet webhook:", error);
+    res.status(500).json({
+      success: false,
+      error: error.message || "Failed to synchronize registration."
+    });
+  }
+});
+
 // Serve Vite App
 async function startServer() {
   if (process.env.NODE_ENV !== "production") {
