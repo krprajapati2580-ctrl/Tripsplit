@@ -1,6 +1,6 @@
 import { jsPDF } from "jspdf";
 import { User, Expense } from "../types";
-import { calculateBalances, calculateSimplifiedDebts, formatCurrency } from "../utils";
+import { calculateBalances, calculateSimplifiedDebts } from "../utils";
 
 interface GeneratePDFParams {
   tripName: string;
@@ -8,6 +8,42 @@ interface GeneratePDFParams {
   expenses: Expense[];
   currencySymbol: string;
   tripBudget: number;
+}
+
+// Helper to format currency values safely for PDF generation
+function formatPdfCurrency(amount: number, symbol: string): string {
+  let safeSymbol = symbol;
+  if (symbol === "₹") {
+    safeSymbol = "Rs.";
+  } else if (symbol === "€") {
+    safeSymbol = "EUR";
+  } else if (symbol === "£") {
+    safeSymbol = "GBP";
+  } else if (symbol === "$") {
+    safeSymbol = "$";
+  }
+
+  let formattedNumber = "";
+  try {
+    if (symbol === "₹") {
+      formattedNumber = amount.toLocaleString("en-IN", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      });
+    } else {
+      formattedNumber = amount.toLocaleString("en-US", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      });
+    }
+  } catch (e) {
+    formattedNumber = amount.toFixed(2);
+  }
+
+  if (safeSymbol === "Rs." || safeSymbol === "EUR" || safeSymbol === "GBP") {
+    return `${safeSymbol} ${formattedNumber}`;
+  }
+  return `${safeSymbol}${formattedNumber}`;
 }
 
 export function downloadPdfReport({
@@ -32,24 +68,35 @@ export function downloadPdfReport({
 
   // 2. Branding Header
   // Logo Icon shape (Origami split style matching TripSplit)
+  // Left Wing (Vibrant Blue/Indigo)
   doc.setFillColor(59, 130, 246); // Blue
-  doc.triangle(15, 25, 25, 25, 20, 15, "F");
+  doc.triangle(23, 16.0, 16.7, 27.7, 23, 25.0, "F");
+
+  // Right Wing (Vibrant Cyan)
   doc.setFillColor(6, 182, 212); // Cyan
-  doc.triangle(20, 15, 25, 25, 25, 15, "F");
-  doc.setDrawColor(255, 255, 255);
+  doc.triangle(23, 16.0, 23, 25.0, 29.3, 27.7, "F");
+
+  // Center Split Core Divider
+  doc.setDrawColor(248, 250, 252); // White-slate
   doc.setLineWidth(0.4);
-  doc.line(20, 15, 20, 25);
+  doc.line(23, 16.0, 23, 25.0);
+
+  // Decorative Compass Dot (Travel theme)
+  doc.setFillColor(99, 102, 241); // Indigo
+  doc.circle(23, 14.56, 0.54, "F");
+  doc.setFillColor(59, 130, 246); // Blue
+  doc.circle(23, 14.56, 0.4, "F");
 
   // Header Typography
   doc.setFont("helvetica", "bold");
   doc.setFontSize(20);
   doc.setTextColor(15, 23, 42); // Slate 900
-  doc.text("TripSplit", 30, 21);
+  doc.text("TripSplit", 34, 21);
 
   doc.setFont("helvetica", "normal");
   doc.setFontSize(9);
   doc.setTextColor(100, 116, 139); // Slate 500
-  doc.text("Offline Expense Split & Settlement Ledger", 30, 26);
+  doc.text("Offline Expense Split & Settlement Ledger", 34, 26);
 
   // Top-Right Metadata
   doc.setFont("helvetica", "bold");
@@ -96,7 +143,7 @@ export function downloadPdfReport({
   doc.setFont("helvetica", "bold");
   doc.setFontSize(11);
   doc.setTextColor(15, 23, 42);
-  doc.text(formatCurrency(tripBudget, currencySymbol), 20, cardY + 14);
+  doc.text(formatPdfCurrency(tripBudget, currencySymbol), 20, cardY + 14);
 
   // Card 2
   doc.setFont("helvetica", "bold");
@@ -106,7 +153,7 @@ export function downloadPdfReport({
   doc.setFont("helvetica", "bold");
   doc.setFontSize(11);
   doc.setTextColor(15, 23, 42);
-  doc.text(formatCurrency(totalTripExpenses, currencySymbol), 82, cardY + 14);
+  doc.text(formatPdfCurrency(totalTripExpenses, currencySymbol), 82, cardY + 14);
 
   // Card 3
   const remaining = tripBudget - totalTripExpenses;
@@ -123,25 +170,26 @@ export function downloadPdfReport({
   }
   doc.text(
     remaining >= 0 
-      ? formatCurrency(remaining, currencySymbol) 
-      : `-${formatCurrency(Math.abs(remaining), currencySymbol)}`,
+      ? formatPdfCurrency(remaining, currencySymbol) 
+      : `-${formatPdfCurrency(Math.abs(remaining), currencySymbol)}`,
     144,
     cardY + 14
   );
 
   // 4. Standings Column vs Settlements Column
-  // Side by Side split: Left Column (15mm - 100mm), Right Column (110mm - 195mm)
+  // Side by Side split: Left Column (15mm - 95mm), Right Column (115mm - 195mm)
+  // This creates a generous 20mm center channel to prevent overlapping and provide a highly polished, clean layout
   const columnsY = 64;
   doc.setFont("helvetica", "bold");
   doc.setFontSize(9.5);
   doc.setTextColor(15, 23, 42);
   doc.text("GROUP BALANCES", 15, columnsY);
-  doc.text("PAYMENT SETTLEMENT PLAN", 110, columnsY);
+  doc.text("PAYMENT SETTLEMENT PLAN", 115, columnsY);
 
   doc.setDrawColor(226, 232, 240);
   doc.setLineWidth(0.4);
-  doc.line(15, columnsY + 2, 100, columnsY + 2);
-  doc.line(110, columnsY + 2, 195, columnsY + 2);
+  doc.line(15, columnsY + 2, 95, columnsY + 2);
+  doc.line(115, columnsY + 2, 195, columnsY + 2);
 
   // Draw Standings list
   const balances = calculateBalances(users, expenses);
@@ -156,25 +204,25 @@ export function downloadPdfReport({
     doc.setTextColor(51, 65, 85);
     doc.text(u.name, 15, leftY);
 
-    // Dynamic color badge representing net balance status
+    // Dynamic color badge representing net balance status (right-aligned to X=95)
     if (bal > 0.01) {
       doc.setFont("helvetica", "bold");
       doc.setTextColor(16, 185, 129); // Emerald green for positive owed
-      doc.text(`Owed +${formatCurrency(bal, currencySymbol)}`, 100, leftY, { align: "right" });
+      doc.text(`Owed +${formatPdfCurrency(bal, currencySymbol)}`, 95, leftY, { align: "right" });
     } else if (bal < -0.01) {
       doc.setFont("helvetica", "bold");
       doc.setTextColor(239, 68, 68); // Red for owes
-      doc.text(`Owes -${formatCurrency(Math.abs(bal), currencySymbol)}`, 100, leftY, { align: "right" });
+      doc.text(`Owes -${formatPdfCurrency(Math.abs(bal), currencySymbol)}`, 95, leftY, { align: "right" });
     } else {
       doc.setFont("helvetica", "normal");
       doc.setTextColor(148, 163, 184); // Settled state
-      doc.text("Settle Up ✅", 100, leftY, { align: "right" });
+      doc.text("Settle Up ✅", 95, leftY, { align: "right" });
     }
 
     // Row separator
     doc.setDrawColor(241, 245, 249);
     doc.setLineWidth(0.2);
-    doc.line(15, leftY + 2, 100, leftY + 2);
+    doc.line(15, leftY + 2, 95, leftY + 2);
 
     leftY += 6.5;
   });
@@ -187,34 +235,38 @@ export function downloadPdfReport({
     doc.setFont("helvetica", "normal");
     doc.setFontSize(8.5);
     doc.setTextColor(148, 163, 184);
-    doc.text("All clean! No active debt payments needed. 🎉", 110, rightY);
+    doc.text("All clean! No active debt payments needed. 🎉", 115, rightY);
   } else {
     debts.forEach((debt) => {
-      // Payment Flow layout description
+      // Payment Flow layout dynamically measured to prevent overlapping text
       doc.setFont("helvetica", "bold");
       doc.setFontSize(8.5);
       doc.setTextColor(51, 65, 85);
-      doc.text(debt.fromName, 110, rightY);
+      doc.text(debt.fromName, 115, rightY);
+
+      const fromW = doc.getTextWidth(debt.fromName);
 
       doc.setFont("helvetica", "normal");
       doc.setFontSize(7.5);
       doc.setTextColor(100, 116, 139);
-      doc.text(" pays to ", 128, rightY);
+      doc.text(" pays to ", 115 + fromW, rightY);
+
+      const paysW = doc.getTextWidth(" pays to ");
 
       doc.setFont("helvetica", "bold");
       doc.setFontSize(8.5);
       doc.setTextColor(51, 65, 85);
-      doc.text(debt.toName, 142, rightY);
+      doc.text(debt.toName, 115 + fromW + paysW, rightY);
 
-      // Amount on right
+      // Amount on right (aligned right to X=195)
       doc.setFont("helvetica", "bold");
       doc.setTextColor(59, 130, 246); // Blue color for payments
-      doc.text(formatCurrency(debt.amount, currencySymbol), 195, rightY, { align: "right" });
+      doc.text(formatPdfCurrency(debt.amount, currencySymbol), 195, rightY, { align: "right" });
 
       // Row separator
       doc.setDrawColor(241, 245, 249);
       doc.setLineWidth(0.2);
-      doc.line(110, rightY + 2, 195, rightY + 2);
+      doc.line(115, rightY + 2, 195, rightY + 2);
 
       rightY += 6.5;
     });
@@ -324,7 +376,7 @@ export function downloadPdfReport({
 
       doc.setFont("helvetica", "bold");
       doc.setTextColor(15, 23, 42);
-      doc.text(formatCurrency(exp.totalAmount, currencySymbol), 193, expenseY, { align: "right" });
+      doc.text(formatPdfCurrency(exp.totalAmount, currencySymbol), 193, expenseY, { align: "right" });
 
       // Row separation line
       doc.setDrawColor(241, 245, 249);
