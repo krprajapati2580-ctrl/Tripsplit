@@ -32,3 +32,14 @@ export interface Debt {
   toName: string;
   amount: number;
 }
+
+export interface PastTrip {
+  id: string;
+  name: string;
+  budget: number;
+  currency: string;
+  users: User[];
+  expenses: Expense[];
+  createdAt: string;
+}
+
